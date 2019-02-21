@@ -1,8 +1,8 @@
 from django.shortcuts import render,get_object_or_404,redirect, HttpResponse
 from django.contrib import messages
 from django.contrib.auth.models import User
-from django.views.generic import ListView, DetailView, CreateView, UpdateView , DeleteView
-from .models import Category, Device, DeviceType, StateAttribute, StateAttributeRecord, FunctionParameter, Function
+from django.views.generic import ListView, DetailView, CreateView, UpdateView , DeleteView, View,TemplateView
+from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.contrib.messages.views import SuccessMessageMixin
 from django.http import Http404  
@@ -188,14 +188,12 @@ class DeviceView(LoginRequiredMixin,UserPassesTestMixin,ListView):
 
         return context
     
-class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
-    model = FunctionParameter
+class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
     template_name = 'devices/function.html'
-    context_object_name = 'parameters'
 
     def get_queryset(self):
        fun = get_object_or_404(Function, id=self.kwargs.get('funpk'))
-       return FunctionParameter.objects.filter(funct = fun).order_by('name')
+       return 
     
     def test_func(self):
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
@@ -213,6 +211,17 @@ class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
         context['dev'] = dev
         fun = get_object_or_404(Function, id=self.kwargs.get('funpk'))
         context['fun'] = fun
+
+        context['parameters'] = FunctionParameter.objects.filter(funct = fun).order_by('name')
+        
+        options = {}
+
+        for par in context['parameters']:
+            opts = FunctionParameterOption.objects.filter(parameter = par)
+            par.options = opts
+            const = FunctionParameterConstraint.objects.filter(parameter = par)
+            par.constraints = const
+
         return context
     
     def post(self, request, *args, **kwargs):
@@ -226,12 +235,35 @@ class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,ListView):
 
         for par in parameters:
             val = request.POST.get(str(par.id),"")
-            if par.data_type == 'B':
+            if par.data_type == BOOL:
                 if val == '':
                     val = False
                 else:
                     val = True
+            elif par.data_type == FLOAT:
+                if val == '':
+                    val = 0
+                else:
+                    val = float(val)
             values[str(par.name)] = val
+            constraints = FunctionParameterConstraint.objects.filter(parameter = par)
+            for con in constraints:
+                if con.constraintType == CONSTRAINT_MAX and par.data_type == FLOAT:
+                    if val > float(con.value):
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' MAX VALUE: ' + str(con.value))
+                        return redirect('function',catpk=cat.id,devpk=dev.id,funpk=fun.id)
+                elif con.constraintType == CONSTRAINT_MIN and par.data_type == FLOAT:
+                    if val < float(con.value):
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' MIN VALUE: ' + str(con.value))
+                        return redirect('function',catpk=cat.id,devpk=dev.id,funpk=fun.id)
+                elif con.constraintType == CONSTRAINT_DIFFERENT:
+                    if par.data_type == FLOAT:
+                        if val == float(con.value):
+                            messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' VALUE MUST BE DIFFERENT FROM: ' + str(con.value))
+                            return redirect('function',catpk=cat.id,devpk=dev.id,funpk=fun.id)
+                    elif val == con.value:
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' VALUE MUST BE DIFFERENT FROM: ' + str(con.value))
+                        return redirect('function',catpk=cat.id,devpk=dev.id,funpk=fun.id)
         
         print(values)
         # send values to a function that performs a http request to the device in order to send the data

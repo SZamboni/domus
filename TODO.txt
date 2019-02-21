@@ -1,4 +1,8 @@
--JSON To send data to device
--parse the parameter for a function
+TODO:
+-alert create view
+-alert update view
+-alert delete view
+-alert list view for device
+-actually make alert working
 
 -get port of the device (impossible???)

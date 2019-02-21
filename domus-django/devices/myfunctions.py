@@ -1,7 +1,7 @@
 from django.shortcuts import render,get_object_or_404,redirect, HttpResponse
 from django.contrib.auth.models import User
 from django.views.generic import ListView, DetailView, CreateView, UpdateView , DeleteView
-from .models import Category, Device, DeviceType, StateAttribute, StateAttributeRecord, FunctionParameter, Function
+from .models import *
 from django.contrib.auth.mixins import LoginRequiredMixin, UserPassesTestMixin
 from django.http import Http404,HttpRequest
 from django.views.decorators.csrf import csrf_exempt
@@ -46,9 +46,20 @@ def parseRegistrationJson(req):
                     if 'parameterType' not in par:
                         return HttpResponse("No parameterType value",status=400)
 
+                    if 'options' in par:
+                        for opt in par['options']:
+                            if 'option' not in opt:
+                                return HttpResponse("No option value",status=400)
+                    
+                    if 'constraints' in par:
+                        for con in par['constraints']:
+                            if 'type' not in con:
+                                return HttpResponse("No constraint value",status=400)
+                            if 'value' not in con:
+                                return HttpResponse("No constraint value",status=400)
+
     #check if the owner is not valid
     if User.objects.filter(username = data['owner']).exists() == False:
-        print("Unknown user")
         return HttpResponse("Unknown User",status=400)
 
     #check if the device is already inside the database
@@ -122,11 +133,30 @@ def parseRegistrationJson(req):
                         pardesc = ''
                         if 'parameterDescription' in par: 
                             pardesc = par['parameterDescription']
-                        dataType = par['parameterType']
-                        if dataType != 'F' and dataType != 'S' and dataType != 'B':
-                            dataType = 'S' 
+
+                        dataType = STRING
+                        for par_type in DATA_CHOICES:
+                            print((par_type))
+                            if str(par['parameterType']) == par_type[0]:
+                                dataType = par_type[0]
                         param = FunctionParameter(name=par['parameterName'],description = pardesc,funct = funct,data_type = dataType)
                         param.save()
+
+                        if 'options' in par:
+                            for opt in par['options']:
+                                optdesc = ''
+                                if 'optionDescription' in opt:
+                                    optdesc = opt['optionDescription']
+                                o = FunctionParameterOption(parameter=param,option=opt['option'],description = optdesc)
+                                o.save()
+                        if 'constraints' in par:
+                            for con in par['constraints']:
+                                constraint_type = CONSTRAINT_DIFFERENT
+                                for con_type in PARAMETER_CONSTRAINT:
+                                    if con_type[0] == str(con['type']):
+                                        constraint_type = con_type[0]
+                                c = FunctionParameterConstraint(parameter=param,value=con['value'],constraintType = constraint_type)
+                                c.save()
                         
         #create the device
         dev = Device(deviceID=data['deviceID'],Devtype=devType,name=data['deviceName'],description='',ip_adress="1",port="1")
@@ -223,7 +253,7 @@ def sendFunctionRequest(request,cat,dev,funct,values):
     print(json_data)
 
     try:
-        r = requests.post('http://'+str(dev.ip_adress)+':'+str(dev.port), json=responsedata,timeout=1)
+        r = requests.post('http://'+str(dev.ip_adress)+':'+str(dev.port), json=responsedata,timeout=5)
         print(r.text)
 
         if r.status_code == 200:
