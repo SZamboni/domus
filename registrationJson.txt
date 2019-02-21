@@ -1,0 +1,30 @@
+Registration JSON structure(* are optional):
+	-deviceID
+	-deviceName
+	
+	-deviceType
+	-deviceTypeName*
+
+	-owner
+
+	-stateAttributes:[
+		{
+		attributeName
+		attributeDescription*
+		attributeType
+		}
+	]
+	-functions:[
+		{
+		functionName
+		functionDescription*
+		parameters:[
+			{
+			parameterName
+			parameterDescription*
+			parameterType
+			}
+		]
+	]
+
+		

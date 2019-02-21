@@ -1,0 +1,31 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-md-right"> <a href="{% url 'home' %}"><h3>Back</h3></a></div>
+    {% for dev in devices %}
+
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                    <a href="{% url 'device' cat.id dev.id %}" ><h2>Device: {{ dev.name }}</h2></a>
+                    <p><small>ID: {{ dev.deviceID }}</small></br>
+                    <small>adress: {{ dev.ip_adress }} : {{ dev.port }}</small> </p>
+                    <p> <small>{{ dev.description }} </small> </p>
+                    <p><small>Type: {{dev.Devtype }}</small></p>
+                    
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'changecategory' cat.id dev.id cat.id %}">Change Category</a></button>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'updatedevice' cat.id dev.id %}">Update</a></button>
+            </div>
+            <div>
+                <button class="btn btn-outline-danger" ><a href="{% url 'deletedevice' cat.id dev.id %}">Delete</a></button>
+            </div>
+        </article>
+
+    {% endfor %}
+
+{% endblock content %}    

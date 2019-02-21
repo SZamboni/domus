@@ -1,0 +1,32 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+
+    {% for cat in categories %}
+
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                <a href=" {% url 'category' cat.id %}"><h2>Category: {{ cat.name }}</h2></a>
+                <small>{{ cat.devices.count }} devices</small>
+                </div>
+                
+                <p class="article-content">{{ cat.description }}</p>
+            </div>
+            {% if cat.devices.count == 0 %}
+            <div>
+                <button class="btn btn-outline-danger"><a href="{% url 'deletecategory' cat.id %}">Delete</a></button>
+            </div>
+            {% endif %}
+            <div>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'updatecategory' cat.id %}">Update</a></button>
+            </div>
+            
+        </article>
+
+    {% endfor %}
+    <div class="float-md-right">
+        <button class="btn btn-outline-secondary" ><a href="{% url 'newcategory' %}">Create New Category</a></button>
+    </div>
+
+{% endblock content %}    

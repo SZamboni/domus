@@ -1,0 +1,35 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+    <div class="float-right"> <a href="{% url 'device' cat.id dev.id %}"><h3>Back</h3></a></div>
+
+    <h2>{{ fun.name }}</h2>
+    
+    <small>Description: {{ fun.description }}</small>
+    <form action="{% url 'function' cat.id dev.id fun.id%}" method="POST">
+    {% csrf_token %}
+    {% for par in parameters %}
+
+        <article class="media content-section">
+            <div class="media-body" class=".col-md-6">
+                <div class="article-metadata">
+                    <h5>Paramerer {{ par.name }}:</h5>
+                    <p> <small>{{ par.description }}. Type: {{ par.data_type }} </small>
+                </div>                  
+            </div>
+            <div class=".col-md-6">
+                    {% if par.data_type == 'B' %}
+                        <input type="radio" name="{{ par.id }}">
+                    {% elif par.data_type == 'S'%}
+                        <input type="text" name="{{ par.id }}">
+                    {% else %}
+                        <input type="number" name="{{ par.id }}">
+                    {% endif %}   
+                </div>  
+        </article>
+
+    {% endfor %}
+    <input type="submit" value="Send Command">
+    </form>
+
+{% endblock content %}    

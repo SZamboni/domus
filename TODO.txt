@@ -1,0 +1,4 @@
+-JSON To send data to device
+-parse the parameter for a function
+
+-get port of the device (impossible???)

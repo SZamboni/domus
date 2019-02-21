@@ -1,0 +1,41 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+    <div class="float-right"> <a href="{% url 'category' cat.id %}"><h3>Back</h3></a></div></br>
+    
+    <legend class="border-bottom mb-4">Device {{ dev.name }} </legend>
+    <small>Adress: {{ dev.ip_adress }}:{{ dev.port }}</small>
+    <p><small>Description: {{ dev.description }}</small></p>
+    
+    {% for att in stateatt %}
+
+        <article class="media content-section">
+            <div class="media-body" class=".col-md-6">
+                
+                <div class="article-metadata">
+                    <h6>{{ att.name }}</h6>
+                    <small>{{ att.description }}</small>
+                    
+                </div>
+            </div>
+            <div class=".col-md-6">
+            {% for val in values %}
+                {% if val.attribute == att %}
+                    <p>{{ val.value }}</p>
+                    <small>Updated: {{ val.date_received }}</small>
+                {% endif %}
+            {% endfor %}
+            </div>
+            
+        </article>
+
+    {% endfor %}
+
+    <legend class="border-bottom mb-4">Functions:</legend>
+    <ul>
+
+    {% for fun in functions %}
+        <li><a href="{% url 'function' cat.id dev.id fun.id%}" ><h4>{{ fun.name }} </h4> </a></li>
+    {% endfor %}
+    </ul>
+{% endblock content %}    

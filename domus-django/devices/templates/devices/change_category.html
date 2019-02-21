@@ -1,0 +1,28 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+    <div class="float-right"> <a href="{% url 'category' cat.id %}"><h3>Back</h3></a></div>
+
+    <h1>Select the category where to put the device {{ dev.name }}</h1>
+
+    {% for c in categories %}
+
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                <a href=" {% url 'category' cat.id %}"><h2>Category: {{ c.name }}</h2></a>
+                <small>{{ c.devices.count }} devices</small>
+                </div>
+                <p class="article-content">{{ c.description }}</p>
+            </div>
+            <div>
+                <form action="{% url 'changecategory' c.id dev.id oldcat.id %}" method="POST">
+                    {% csrf_token %}
+                    <input type="submit" name="Change" value="Change to here" />
+                </form>
+            </div>
+        </article>
+
+    {% endfor %}
+
+{% endblock content %}    

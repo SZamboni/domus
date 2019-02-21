@@ -1,0 +1,12 @@
+{% extends "devices/base.html" %}
+
+{% block content %}
+
+    <div>
+        <h2>Welcome to Domus!</h2>
+        <p>Domus is a project for easily control simple devices.</p>
+        <p><a href="{% url 'login' %}">Log in here </a> or, if you don't have an account, <a href="{% url 'register' %}">register here</a></p>
+    </div>
+
+{% endblock content %}    
+
