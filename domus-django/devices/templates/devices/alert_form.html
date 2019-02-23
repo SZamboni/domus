@@ -1,0 +1,23 @@
+{% extends "devices/base.html" %}
+
+{% load crispy_forms_tags %}
+
+{% block content %}
+<div class="float-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div>
+    <div class="content-section">
+        <form method ="POST">
+            {% csrf_token %}
+            <fieldset class ="form-group">
+                <legend class="border-bottom mb-4">Create Alert</legend>
+                {{ form|crispy }}
+                <div><small>Note: the value of the Alert must be of type {{ atttype }} to be consistent with the attribute type</small></div>
+            </fieldset>
+            <div class="form-group">
+                <button class="btn btn-outline-info" type="submit">Submit</button>
+            </div>
+
+        </form>
+        
+    </div>
+
+{% endblock content %}    

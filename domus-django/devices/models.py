@@ -106,13 +106,13 @@ class FunctionParameterConstraint(models.Model):
         default = CONSTRAINT_DIFFERENT,
     )
 
-CONDITION_MAX = 'MAX'
-CONDITION_MIN = 'MIN'
-CONDITION_DIFFERENT = 'DIF'
-CONDITION_EQUAL = 'EQL'
+CONDITION_GREATER = '>'
+CONDITION_SMALLER = '<'
+CONDITION_DIFFERENT = '≠'
+CONDITION_EQUAL = '='
 ALERT_CONDITIONS = (
-    (CONDITION_MAX, 'Maximum'),
-    (CONDITION_MIN, 'Minimum'),
+    (CONDITION_GREATER, 'Greater'),
+    (CONDITION_SMALLER, 'Smaller'),
     (CONDITION_DIFFERENT, 'Different'),
     (CONDITION_EQUAL,'Equal'),
 )
@@ -126,18 +126,19 @@ ALERT_LEVELS = (
     (ALERT_LEVEL_HIGH,'Highest'),
 )
 
-class Alerts(models.Model):
+class Alert(models.Model):
     device = models.ForeignKey(Device,on_delete=models.CASCADE)
     attribute = models.ForeignKey(StateAttribute,on_delete=models.CASCADE)
     description = models.CharField(max_length=250)
     alert_condition = models.CharField(
-        max_length = 3,
+        max_length = 1,
         choices = ALERT_CONDITIONS,
         default = CONDITION_EQUAL
     )
-    level = models.CharField(
+    alert_level = models.CharField(
         max_length = 3,
         choices = ALERT_LEVELS,
         default = ALERT_LEVEL_MID
     )
+    value = models.CharField(max_length=30)
     

@@ -277,6 +277,124 @@ class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
 
         return redirect('device',catpk=cat.id,pk=dev.id)
 
+class AlertCreateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin,CreateView):
+    model = Alert
+    fields = ['description','alert_condition','alert_level','value']
+    success_url= '/userDevices/'
+    success_message = 'Alert successfully created'      
+
+    def form_valid(self,form):
+        att = get_object_or_404(StateAttribute, id=self.kwargs.get('pk'))
+        form.instance.attribute = att
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        form.instance.device = dev
+
+        if att.data_type == FLOAT:
+            try:
+                float(form.data['value'])
+            except:
+                return super().form_invalid(form)
+        elif att.data_type == BOOL:
+            try:
+                bool(form.data['value'])
+            except:
+                return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if(cat.owner == self.request.user):
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['catid']=id=self.kwargs.get('catpk')
+        context['devid']=id=self.kwargs.get('devpk')
+        att = get_object_or_404(StateAttribute, id=self.kwargs.get('pk'))
+        context['atttype'] = att.data_type
+        return context
+
+class AlertListView(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    model = Alert
+    template_name = 'devices/alerts.html'
+    context_object_name = 'alert_list'
+    paginate_by = 2
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        context['catid'] = self.kwargs.get('catpk')
+        context['devid'] = self.kwargs.get('devpk')
+        return context
+
+    def get_queryset(self):
+       dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+       return Alert.objects.filter(device = dev)
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if(cat.owner == self.request.user):
+            return True
+        return False
+
+class AlertDeleteView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin,DeleteView):
+    model = Alert
+    success_url = '/userDevices/'
+    success_message = 'Alert successfully deleted'
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            return True
+        return False
+
+class AlertUpdateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin,UpdateView):
+    model = Alert
+    fields = ['description','alert_condition','alert_level','value']
+    success_url= '/userDevices/'
+    success_message = 'Alert successfully updated'
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            return True
+        return False
+    
+    def form_valid(self,form):
+        alert = get_object_or_404(Alert,id=self.kwargs.get('pk'))
+        att = alert.attribute
+        form.instance.attribute = att
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        form.instance.device = dev
+
+        if att.data_type == FLOAT:
+            try:
+                float(form.data['value'])
+            except:
+                return super().form_invalid(form)
+        elif att.data_type == BOOL:
+            try:
+                bool(form.data['value'])
+            except:
+                return super().form_invalid(form)
+
+        return super().form_valid(form)
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['catid']=id=self.kwargs.get('catpk')
+        context['devid']=id=self.kwargs.get('devpk')
+        alert = get_object_or_404(Alert,id=self.kwargs.get('pk'))
+        att = alert.attribute
+        context['atttype'] = att.data_type
+        return context
+
 @csrf_exempt
 def registerDevice(request):
     if request.method != 'POST':

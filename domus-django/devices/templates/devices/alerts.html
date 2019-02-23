@@ -1,0 +1,26 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-md-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div>
+    {% for item in alert_list %}
+
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                   <h4>{{ item.attribute.name }} {{ item.alert_condition }} {{ item.value }}</h4>
+                    <p><small>{{ item.description }}</small></p>
+                    <div>Alert level: {{ item.alert_level }} </div>
+                    
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'updatealert' catid devid item.id %}">Update</a></button>
+            </div>
+            <div>
+                <button class="btn btn-outline-danger" ><a href="{% url 'deletealert' catid devid item.id %}">Delete</a></button>
+            </div>
+        </article>
+
+    {% endfor %}
+
+{% endblock content %}    

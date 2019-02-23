@@ -6,6 +6,7 @@
     <legend class="border-bottom mb-4">Device {{ dev.name }} </legend>
     <small>Adress: {{ dev.ip_adress }}:{{ dev.port }}</small>
     <p><small>Description: {{ dev.description }}</small></p>
+    <div><button class="btn btn-outline-secondary"><a href="{% url 'alerts' cat.id dev.id %}">See Alerts</a> </button></div>
     
     {% for att in stateatt %}
 
@@ -14,8 +15,8 @@
                 
                 <div class="article-metadata">
                     <h6>{{ att.name }}</h6>
-                    <small>{{ att.description }}</small>
-                    
+                    <small>{{ att.description }}
+                    <div><a href="{% url 'newalert' cat.id dev.id att.id%}"><button>Create Alert for Attribute</button></a></div></small>
                 </div>
             </div>
             <div class=".col-md-6">

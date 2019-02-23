@@ -1,8 +1,6 @@
 from django.urls import path, re_path
 from . import views
-from .views import (UserCategoriesView, DevicesCategoryView, DeviceView, FunctionsView, 
-        registerDevice,CategoryCreateView, CategoryUpdateView, CategoryDeleteView,
-        DeviceUpdateView,DeviceDeleteView,ChangeCategoryView)
+from .views import *
 
 urlpatterns = [
     path('about/', views.about, name="about-page"),
@@ -18,6 +16,11 @@ urlpatterns = [
     path('category/<int:catpk>/device/<int:pk>/update/',DeviceUpdateView.as_view(),name='updatedevice'),
     path('category/<int:catpk>/device/<int:pk>/delete/',DeviceDeleteView.as_view(),name='deletedevice'),
     path('category/<int:catpk>/device/<int:pk>/changecategory/<int:oldcatpk>/',ChangeCategoryView.as_view(),name='changecategory'),
+
+    path('category/<int:catpk>/device/<int:devpk>/attribute/<int:pk>/newalert/',AlertCreateView.as_view(),name='newalert'),
+    path('category/<int:catpk>/device/<int:devpk>/alerts/',AlertListView.as_view(),name='alerts'),
+    path('category/<int:catpk>/device/<int:devpk>/alerts/<int:pk>/delete/',AlertDeleteView.as_view(),name='deletealert'),
+    path('category/<int:catpk>/device/<int:devpk>/alerts/<int:pk>/update/',AlertUpdateView.as_view(),name='updatealert'),
 
     path('category/<int:catpk>/device/<int:devpk>/function/<int:funpk>', FunctionsView.as_view(), name="function"),
     path('registerdevice/', views.registerDevice,name='registerdevice'),
