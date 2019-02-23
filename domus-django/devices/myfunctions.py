@@ -212,7 +212,19 @@ def parseStateData(req):
         for st in stateatts:
             for att in data['stateAttributes']:
                 if(st.name == att['attributeName']):
-                    record = StateAttributeRecord(device = dev, attribute = st, value = att['value'])
+                    val = att['value']
+                    if st.data_type == FLOAT:
+                        try:
+                            val = str(float(att['value']))
+                        except:
+                            return HttpResponse("Wrong data format",status=400)
+                    elif st.data_type == BOOL:
+                        try:
+                            val = str(bool(att['value']))
+                        except:
+                            return HttpResponse("Wrong data format",status=400)
+
+                    record = StateAttributeRecord(device = dev, attribute = st, value = val)
                     record.save()
 
     else:

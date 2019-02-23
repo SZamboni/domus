@@ -141,4 +141,9 @@ class Alert(models.Model):
         default = ALERT_LEVEL_MID
     )
     value = models.CharField(max_length=30)
+
+class Notification(models.Model):
+    alert = models.ForeignKey(Alert,on_delete=models.CASCADE)
+    date = models.DateTimeField(default=timezone.now)
+    readed = models.BooleanField()
     
