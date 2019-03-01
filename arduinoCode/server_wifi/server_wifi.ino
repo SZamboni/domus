@@ -2,6 +2,7 @@
 #include <WiFiClient.h>
 #include <ESP8266WebServer.h>
 #include <ESP8266mDNS.h>
+#include <ArduinoJson.h>
 
 #ifndef STASSID
 #define STASSID "FASTWEB-1-1FAA45"
@@ -13,17 +14,81 @@ const char* password = STAPSK;
 
 ESP8266WebServer server(80);
 
-void handlePostFunction() {
-  if(server.method() == HTTP_POST) {
+void getRequestInfo() {
+  Serial.print("Method: ");
+  Serial.println(server.method());
+  Serial.print("Arguments: ");
+  Serial.println(server.args());
+  for (int i = 0; i < server.args(); i++) {
+    Serial.print("Argument n° ");
+    Serial.print(i);
+    Serial.print(" name: ");
+    Serial.print(server.argName(i));
+    Serial.print(" value: ");
+    Serial.println(server.arg(i));
+  } 
+  
+  Serial.print("headers:");
+  Serial.println(server.headers());
 
-  for (uint8_t i = 0; i < server.args(); i++) {
-    message += " " + server.argName(i) + ": " + server.arg(i) + "\n";
+  for(int i = 0; i < server.headers(); i++) {
+    Serial.print("Header: ");
+    Serial.print(server.headerName(i));
+    Serial.print(" : ");
+    Serial.println(server.header(i));
   }
+  server.send(200,"text/plain","OK");
+}
+
+void handlePostFunction() {
+  if (server.hasArg("plain")== true && server.method() == HTTP_POST){ //Check if body received
+    String body = server.arg("plain");
+    int capacity = JSON_OBJECT_SIZE(2) + JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(2);
+    DynamicJsonBuffer jb(capacity);
+    JsonObject& root = jb.parseObject(body);
+
+    if(root.success()) {
+      Serial.println("JSON serialization suceeded");
+      String devId = root["deviceID"];
+      String functName = root["function"];
+      if( devId == "" || functName == "") {
+        Serial.println("No deviceID or function");
+        server.send(400,"text/plain","No deviceID or function");
+        return;
+      }
+      Serial.print("deviceID: ");
+      Serial.println(devId);
+      Serial.print("function desired: ");
+      Serial.println(functName);
+      String pars = root["parameters"];
+
+      if(pars == "") {
+        Serial.println("No parameters");
+        server.send(400,"text/plain","No parameters");
+      }
+
+      JsonArray& arr = jb.parseArray(pars);
+      for(int i = 0; i < arr.size(); i++) {
+        String pname = arr[i]["paramName"];
+        String pvalue = arr[i]["paramValue"];
+        if(pname == "" || pvalue == "") {
+          Serial.println("Wrong paramName or paramValue");
+          server.send(400,"text/plain","Wrong paramName or paramValue");
+        }
+        Serial.print(pname); Serial.print(" "); Serial.println(pvalue);
+      }
+
+
+      server.send(200,"text/plain","OK");
+    } else {
+      Serial.println("JSON serialization failed");
+      server.send(400,"text/plain","Wrong JSON format");
+    }
 
     
   } else {
-    String message = "Acceped only POST method";
-    server.send(400, "text/plain", message);
+    Serial.println("Wrong method or no body");
+    server.send(400,"text/plain","Wrong method or no body");
   }
 }
 
@@ -69,6 +134,7 @@ void setup(void) {
   }
 
   server.on("/", handleRoot);
+  server.on("/post",handlePostFunction);
 
   server.on("/inline", []() {
     server.send(200, "text/plain", "this works as well");
