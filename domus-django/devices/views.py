@@ -190,10 +190,6 @@ class DeviceView(LoginRequiredMixin,UserPassesTestMixin,ListView):
     
 class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
     template_name = 'devices/function.html'
-
-    def get_queryset(self):
-       fun = get_object_or_404(Function, id=self.kwargs.get('funpk'))
-       return 
     
     def test_func(self):
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
@@ -458,7 +454,11 @@ class FeedbackFunctionChoiceView(LoginRequiredMixin,UserPassesTestMixin,ListView
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
         cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
         if self.request.user == cat.owner:
-            return True
+            al = get_object_or_404(Alert,id=self.kwargs.get('alpk'))
+            if al.user == self.request.user:
+                return True
+            else:
+                return False
         return False
 
     def get_context_data(self, **kwargs):
@@ -480,19 +480,77 @@ class CreateFeedbackFunctionView(LoginRequiredMixin,UserPassesTestMixin,Template
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
         cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
         if self.request.user == cat.owner:
-            return True
+            al = get_object_or_404(Alert,id=self.kwargs.get('alpk'))
+            if al.user == self.request.user:
+                return True
+            else:
+                return False
         return False
     
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
         context['catid']=self.kwargs.get('catpk')
         context['devid']=self.kwargs.get('devpk')
+        al = get_object_or_404(Alert,id=self.kwargs.get('alpk'))
+        context['alert'] = al
         fun = get_object_or_404(Function, id=self.kwargs.get('pk'))
         context['fun']= fun
         params = FunctionParameter.objects.filter(funct = fun)
-        context['params'] = params
+        context['parameters'] = params
 
         return context
+
+    def post(self, request, *args, **kwargs):
+        #form = self.form_class(request.POST)
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'))
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        fun = get_object_or_404(Function, id=self.kwargs.get('pk'))
+        al = get_object_or_404(Alert,id=self.kwargs.get('alpk'))
+
+        parameters = FunctionParameter.objects.filter(funct = fun)
+        values = {}
+
+        fdbf = FeedbackFunction(alert = al, description = ' ', function = fun)
+        fdbf.save()
+
+        for par in parameters:
+            val = request.POST.get(str(par.id),"")
+            if par.data_type == BOOL:
+                if val == '':
+                    val = False
+                else:
+                    val = True
+            elif par.data_type == FLOAT:
+                if val == '':
+                    val = 0
+                else:
+                    val = float(val)
+            values[str(par.name)] = val
+            constraints = FunctionParameterConstraint.objects.filter(parameter = par)
+            for con in constraints:
+                if con.constraintType == CONSTRAINT_MAX and par.data_type == FLOAT:
+                    if val > float(con.value):
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' MAX VALUE: ' + str(con.value))
+                        return redirect('alerts',catpk=cat.id,devpk=dev.id)
+                elif con.constraintType == CONSTRAINT_MIN and par.data_type == FLOAT:
+                    if val < float(con.value):
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' MIN VALUE: ' + str(con.value))
+                        return redirect('alerts',catpk=cat.id,devpk=dev.id)
+                elif con.constraintType == CONSTRAINT_DIFFERENT:
+                    if par.data_type == FLOAT:
+                        if val == float(con.value):
+                            messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' VALUE MUST BE DIFFERENT FROM: ' + str(con.value))
+                            return redirect('alerts',catpk=cat.id,devpk=dev.id)
+                    elif val == con.value:
+                        messages.add_message(request,messages.ERROR,'ERROR: PARAMETER ' + str(par.name) + ' VALUE MUST BE DIFFERENT FROM: ' + str(con.value))
+                        return redirect('alerts',catpk=cat.id,devpk=dev.id)
+            feedback_par = FeedbackParameter(feedbackfunction = fdbf,parameter = par, value = val)
+            feedback_par.save()
+        
+        print(values)
+
+        messages.add_message(request,messages.SUCCESS,'Feedback function created successfully!')
+        return redirect('alerts',catpk=cat.id,devpk=dev.id)
 
 @csrf_exempt
 def registerDevice(request):

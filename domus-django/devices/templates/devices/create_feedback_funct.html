@@ -1,12 +1,58 @@
 {% extends "devices/paginable.html" %}
 
 {% block content %}
-<div class="float-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div></br>
+<div class="float-right"> <a href="{% url 'alerts' catid devid %}"><h3>Back</h3></a></div>
+<h3>Feedback function {{ fun.name }}</h3>
+<h4>For alert {{ alert.attribute }} {{ alert.alert_condition }} {{ alert.value }} </h4>
+    
+    <small>Description: {{ fun.description }}</small>
+    <form action="{% url 'newfeedbackfunction' catid devid alert.id fun.id %}" method="POST">
+    {% csrf_token %}
+    {% for par in parameters %}
 
-<div><h2>Create Feedback Function with function {{ fun.name }} </h2></div>
-
-{% for par in params %}
-    <div>{{par.name}}</div>
-{% endfor %}
+        <article class="media content-section">
+            <div class="media-body" class=".col-md-6">
+                <div class="article-metadata">
+                    <h5>Paramerer {{ par.name }}:</h5>
+                    <p> <small>{{ par.description }}. </small></p>
+                    {% if par.options %}
+                        <small><p>Options:<ul>
+                        {% for opt in par.options %}
+                            <li>{{ opt.option }} : {{ opt.description }} </li>
+                        {% endfor %}
+                        </ul></p></small>
+                    {% endif %}
+                    {% if par.constraints %}
+                        <small><p>Constraints:<ul>
+                        {% for con in par.constraints %}
+                            <li>{{con.constraintType }} : {{ con.value }} </li>
+                        {% endfor %}
+                        </ul></p></small>
+                    {% endif %}
+                    <p><small>Type: {{ par.data_type }} </small></p>
+                </div>                  
+            </div>
+            <div class=".col-md-6">
+                {% if par.options %}
+                    <select name="{{ par.id }}">
+                    {% for opt in par.options %}
+                        <option value="{{ opt.option }}">{{ opt.option }}</option>
+                    {% endfor %}
+                </select>
+                {% else %}
+                    {% if par.data_type == 'B' %}
+                        <input type="radio" name="{{ par.id }}">
+                    {% elif par.data_type == 'S'%}
+                        <input type="text" name="{{ par.id }}">
+                    {% else %}
+                        <input type="number" name="{{ par.id }}">
+                    {% endif %}   
+                {% endif %}
+                </div>  
+        </article>
+    
+    {% endfor %}
+    <input type="submit" value="Send Command">
+    </form>
 
 {% endblock content %}  

@@ -1,7 +1,12 @@
 TODO:
 -create a lot of data
--from alert to automatic response
+-feedbackfunctions actual implementation
 
+ADVANCED: 
+-all https
+
+SUPER ADVANCEND
+-data visualization with infografics
 
 Known bugs:
 -quando guardi le notifiche le segna tutte come lette e questo crea due problemi:

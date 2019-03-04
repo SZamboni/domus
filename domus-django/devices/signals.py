@@ -28,63 +28,45 @@ def test_signal(sender, instance, **kwargs):
             if al.alert_condition == CONDITION_GREATER:
                 if float(instance.value) > float(al.value):
                     print("condition greater satisfied: " + str(float(instance.value)) + " > " + str(float(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()                    
+                    alertActivated(al,instance,user)
             elif al.alert_condition == CONDITION_SMALLER:
                 if float(instance.value) < float(al.value):
                     print("condition smaller satisfied: " + str(float(instance.value)) + " < " + str(float(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)     
             elif al.alert_condition == CONDITION_EQUAL:
                 if float(instance.value) == float(al.value):
                     print("condition equal satisfied: " + str(float(instance.value)) + " = " + str(float(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)
             elif al.alert_condition == CONDITION_DIFFERENT:
                 if float(instance.value) != float(al.value):
                     print("condition different satisfied: " + str(float(instance.value)) + " != " + str(float(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user) 
         
         elif att.data_type == BOOL:
             if al.alert_condition == CONDITION_EQUAL:
                 if bool(instance.value) == bool(al.value):
                     print("condition equal satisfied: " + str(bool(instance.value)) + " = " + str(bool(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)
             elif al.alert_condition == CONDITION_DIFFERENT:
                 if bool(instance.value) != bool(al.value):
                     print("condition different satisfied: " + str(bool(instance.value)) + " != " + str(bool(al.value)))
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)
         
         elif att.data_type == STRING:
             if al.alert_condition == CONDITION_EQUAL:
                 if instance.value == al.value:
                     print("condition equal satisfied: " + instance.value + " = " + al.value)
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)    
             elif al.alert_condition == CONDITION_DIFFERENT:
                 if instance.value != al.value:
                     print("condition different satisfied: " + instance.value + " != " +al.value)
-                    n = Notification(alert = al, record = instance, date = timezone.now(), readed = False)
-                    n.save()
-                    user.userprofile.unreaded_notifications += 1
-                    user.userprofile.save()     
+                    alertActivated(al,instance,user)   
 
+def alertActivated(al,rec,user):
+    n = Notification(alert = al, record = rec, date = timezone.now(), readed = False)
+    n.save()
+    user.userprofile.unreaded_notifications += 1
+    user.userprofile.save()          
+    print("funct ok")      
 
 
