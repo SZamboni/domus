@@ -3,6 +3,9 @@ from django.utils import timezone
 from django.contrib.auth.models import User
 from django.urls import reverse
 
+class UserProfile(models.Model):
+    user = models.OneToOneField(User,on_delete=models.CASCADE)
+    unreaded_notifications = models.IntegerField()
 
 class DeviceType(models.Model):
     deviceType = models.CharField(max_length=50, unique = True)
@@ -15,11 +18,12 @@ class DeviceType(models.Model):
 
 class Device(models.Model):
     deviceID = models.CharField(max_length=50, unique = True)
-    Devtype = models.ForeignKey(DeviceType,on_delete=models.CASCADE, default=DeviceType.objects.all().first())
+    Devtype = models.ForeignKey(DeviceType,on_delete=models.CASCADE)
     name = models.CharField(max_length=50)
     description = models.CharField(max_length=250)
     ip_adress = models.CharField(max_length=15)
     port = models.IntegerField()
+    path = models.CharField(max_length = 100, default = '/')
 
     def __str__(self):
         return self.name
@@ -129,6 +133,7 @@ ALERT_LEVELS = (
 class Alert(models.Model):
     device = models.ForeignKey(Device,on_delete=models.CASCADE)
     attribute = models.ForeignKey(StateAttribute,on_delete=models.CASCADE)
+    user = models.ForeignKey(User,on_delete=models.CASCADE)
     description = models.CharField(max_length=250)
     alert_condition = models.CharField(
         max_length = 1,
@@ -144,6 +149,16 @@ class Alert(models.Model):
 
 class Notification(models.Model):
     alert = models.ForeignKey(Alert,on_delete=models.CASCADE)
+    record = models.ForeignKey(StateAttributeRecord,on_delete=models.CASCADE)
     date = models.DateTimeField(default=timezone.now)
     readed = models.BooleanField()
-    
+
+class FeedbackFunction(models.Model):
+    alert = models.ForeignKey(Alert,on_delete=models.CASCADE)
+    description = models.CharField(max_length = 100)
+    function = models.ForeignKey(Function,on_delete=models.CASCADE)
+
+class FeedbackParameter(models.Model):
+    parameter = models.ForeignKey(FunctionParameter,on_delete=models.CASCADE)
+    value = models.CharField(max_length = 100)
+    feedbackfunction = models.ForeignKey(FeedbackFunction,on_delete=models.CASCADE)

@@ -44,28 +44,39 @@ bool startWiFi(ESP8266WiFiMulti &WiFiMulti,const char * ssid, const char * pwd) 
  * 
  * @return: true if the sending is successful, false otherwise
  */
-bool sendStringToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const String &s) {
+bool sendStringToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const String &s, bool verb) {
 
   if(( WiFiMulti.run() == WL_CONNECTED)) {
     HTTPClient httpclient;
     httpclient.setTimeout(WIFI_TIMEOUT);
 
-    Serial.println("Starting http request to:");
+    if( verb) {
+      Serial.print("Starting http request to: ");
+      Serial.println(server_url);
+      Serial.print("With body: ");
+      Serial.println(s);
+    }
     
     httpclient.begin(server_url);
 
     int httpCode = httpclient.POST(s);
 
     if(httpCode > 0) {
-      Serial.print("Server response code: ");
-      Serial.println(httpCode);
-
-      if(httpCode == HTTP_CODE_OK) {
-          String payload = httpclient.getString();
-          Serial.println("Response body: ");
-          Serial.println(payload);
+      if(verb) {
+        Serial.print("Server response code: ");
+        Serial.println(httpCode);
       }
-      return true;
+      
+      if(httpCode == HTTP_CODE_OK) {
+          if(verb) {
+            String payload = httpclient.getString();
+            Serial.print("Server response body: ");
+            Serial.println(payload);
+          }
+          return true;
+      } else {
+        return false;
+      }
     } else {
       Serial.print("Connection Error: ");
       Serial.println(httpclient.errorToString(httpCode).c_str());
@@ -86,40 +97,45 @@ bool sendStringToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, c
  * 
  * @return: true if the sending is successful, false otherwise
  */
-bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const JsonObject &jsonobj) {
-
+bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const JsonObject &jsonobj, bool verb) {
   if(( WiFiMulti.run() == WL_CONNECTED)) {
     HTTPClient httpclient;
     httpclient.setTimeout(WIFI_TIMEOUT);
 
-    Serial.println("Starting http request to:");
+    String s_to_send = "";
+    jsonobj.printTo(s_to_send);
+
+    if( verb) {
+      Serial.print("Starting http request to: ");
+      Serial.println(server_url);
+      Serial.print("With body: ");
+      Serial.println(s_to_send);
+    }
     
     httpclient.begin(server_url);
     httpclient.addHeader("Content-Type", "application/json");
 
-    String s_to_send = "";
-    jsonobj.printTo(s_to_send);
-    Serial.println("Sendind:");
-    Serial.println(s_to_send);
     int httpCode = httpclient.POST(s_to_send);
 
     if(httpCode > 0) {
-      Serial.print("Server response code: ");
-      Serial.println(httpCode);
-
-      if(httpCode == HTTP_CODE_OK) {
-          String payload = httpclient.getString();
-          Serial.println("Response body: ");
-          Serial.println(payload);
-          httpclient.end();
-          return true;
+      if(verb) {
+        Serial.print("Server response code: ");
+        Serial.println(httpCode);
       }
-      httpclient.end();
-      return false;
+      
+      if(httpCode == HTTP_CODE_OK) {
+          if(verb) {
+            String payload = httpclient.getString();
+            Serial.print("Server response body: ");
+            Serial.println(payload);
+          }
+          return true;
+      } else {
+        return false;
+      }
     } else {
       Serial.print("Connection Error: ");
       Serial.println(httpclient.errorToString(httpCode).c_str());
-      httpclient.end();
       return false;
     }
     
@@ -137,38 +153,43 @@ bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, con
  * 
  * @return: true if the sending is successful, false otherwise
  */
-bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const String &s) {
+bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti, const String &server_url, const String &s, bool verb) {
 
   if(( WiFiMulti.run() == WL_CONNECTED)) {
     HTTPClient httpclient;
     httpclient.setTimeout(WIFI_TIMEOUT);
 
-    Serial.println("Starting http request to:");
+    if( verb) {
+      Serial.print("Starting http request to: ");
+      Serial.println(server_url);
+      Serial.print("With body: ");
+      Serial.println(s);
+    }
     
     httpclient.begin(server_url);
     httpclient.addHeader("Content-Type", "application/json");
 
-    Serial.println("Sendind:");
-    Serial.println(s);
     int httpCode = httpclient.POST(s);
 
     if(httpCode > 0) {
-      Serial.print("Server response code: ");
-      Serial.println(httpCode);
-
-      if(httpCode == HTTP_CODE_OK) {
-          String payload = httpclient.getString();
-          Serial.println("Response body: ");
-          Serial.println(payload);
-          httpclient.end();
-          return true;
+      if(verb) {
+        Serial.print("Server response code: ");
+        Serial.println(httpCode);
       }
-      httpclient.end();
-      return false;
+      
+      if(httpCode == HTTP_CODE_OK) {
+          if(verb) {
+            String payload = httpclient.getString();
+            Serial.print("Server response body: ");
+            Serial.println(payload);
+          }
+          return true;
+      } else {
+        return false;
+      }
     } else {
       Serial.print("Connection Error: ");
       Serial.println(httpclient.errorToString(httpCode).c_str());
-      httpclient.end();
       return false;
     }
     

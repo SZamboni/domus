@@ -288,6 +288,7 @@ class AlertCreateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin
         form.instance.attribute = att
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
         form.instance.device = dev
+        form.instance.user = self.request.user
 
         if att.data_type == FLOAT:
             try:
@@ -311,8 +312,8 @@ class AlertCreateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['catid']=id=self.kwargs.get('catpk')
-        context['devid']=id=self.kwargs.get('devpk')
+        context['catid']=self.kwargs.get('catpk')
+        context['devid']=self.kwargs.get('devpk')
         att = get_object_or_404(StateAttribute, id=self.kwargs.get('pk'))
         context['atttype'] = att.data_type
         return context
@@ -327,12 +328,13 @@ class AlertListView(LoginRequiredMixin,UserPassesTestMixin,ListView):
         context = super().get_context_data(**kwargs)
         
         context['catid'] = self.kwargs.get('catpk')
-        context['devid'] = self.kwargs.get('devpk')
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        context['dev'] = dev
         return context
 
     def get_queryset(self):
        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
-       return Alert.objects.filter(device = dev)
+       return Alert.objects.filter(device = dev, user = self.request.user)
 
     def test_func(self):
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
@@ -372,6 +374,7 @@ class AlertUpdateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin
         form.instance.attribute = att
         dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
         form.instance.device = dev
+        form.instance.user = self.request.user
 
         if att.data_type == FLOAT:
             try:
@@ -388,11 +391,107 @@ class AlertUpdateView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin
 
     def get_context_data(self, **kwargs):
         context = super().get_context_data(**kwargs)
-        context['catid']=id=self.kwargs.get('catpk')
-        context['devid']=id=self.kwargs.get('devpk')
+        context['catid']=self.kwargs.get('catpk')
+        context['devid']=self.kwargs.get('devpk')
         alert = get_object_or_404(Alert,id=self.kwargs.get('pk'))
         att = alert.attribute
         context['atttype'] = att.data_type
+        return context
+
+class NotificationsListView(LoginRequiredMixin,ListView):
+    model = Notification
+    template_name = 'devices/notifications.html'
+    context_object_name = 'notifications'
+    paginate_by = 2
+
+    def get_queryset(self):
+        user = self.request.user
+        user.userprofile.unreaded_notifications = 0
+        user.userprofile.save()
+        categories = Category.objects.filter(owner = user)
+
+        notifications = []
+
+        for cat in categories:
+            devs = cat.devices.all()
+            for dev in devs:
+                alerts = Alert.objects.filter(device = dev)
+                for al in alerts:
+                    notifications.extend(Notification.objects.filter(alert=al,readed = False))
+        
+        for n in notifications:
+            n.readed = True
+            n.save()
+
+        notifications.sort(key=lambda x: x.date,reverse=True)
+        return notifications
+    
+class OldNotificationsListView(LoginRequiredMixin,ListView):
+    template_name = 'devices/old_notifications.html' 
+    model = Notification
+    paginate_by = 2      
+    context_object_name = 'notifications'
+    
+    def get_queryset(self):
+        user = self.request.user
+        categories = Category.objects.filter(owner = user)
+
+        notifications = []
+
+        for cat in categories:
+            devs = cat.devices.all()
+            for dev in devs:
+                alerts = Alert.objects.filter(device = dev)
+                for al in alerts:
+                    notifications.extend(Notification.objects.filter(alert=al,readed = True))
+
+        notifications.sort(key=lambda x: x.date,reverse=True)
+        return notifications
+
+class FeedbackFunctionChoiceView(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    model = Function
+    paginate_by = 2
+    context_object_name = 'functions'
+    template_name = 'devices/select_feedback_funct.html' 
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            return True
+        return False
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['catid']=self.kwargs.get('catpk')
+        context['devid']=self.kwargs.get('devpk')
+        context['alid']=self.kwargs.get('alpk')
+        return context
+    
+    def get_queryset(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        devtype = dev.Devtype
+        return Function.objects.filter(devType = devtype)
+
+class CreateFeedbackFunctionView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
+    template_name = 'devices/create_feedback_funct.html' 
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            return True
+        return False
+    
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['catid']=self.kwargs.get('catpk')
+        context['devid']=self.kwargs.get('devpk')
+        fun = get_object_or_404(Function, id=self.kwargs.get('pk'))
+        context['fun']= fun
+        params = FunctionParameter.objects.filter(funct = fun)
+        context['params'] = params
+
         return context
 
 @csrf_exempt

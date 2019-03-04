@@ -1,0 +1,23 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-md-right"> <a href="{% url 'home' %}"><h3>Back</h3></a></div>
+<h3>OLD Notifications </h3>
+    {% for n in notifications %}
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                   <p>Date: {{ n.date }}</p>
+                    <p>Device: {{ n.alert.device.name }}</p>
+                    <p>Attribute: {{n.alert.attribute.name }}</p>
+                    <p>Alert: {{n.alert.alert_condition }}</p>
+                    <p>Value: {{n.record.value }}</p>
+                    <p>Level: {{n.alert.alert_level }}</p>
+                </div>
+            </div>
+            
+        </article>
+
+    {% endfor %}
+
+{% endblock content %}    

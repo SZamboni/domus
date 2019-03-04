@@ -1,0 +1,13 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div></br>
+
+<legend class="border-bottom mb-4">Functions:</legend>
+    <ul>
+
+    {% for fun in functions %}
+        <li><a href="{% url 'newfeedbackfunction' catid devid alid fun.id %}"><h4>{{ fun.name }} </h4></a></li>
+    {% endfor %}
+    </ul>
+{% endblock content %}  

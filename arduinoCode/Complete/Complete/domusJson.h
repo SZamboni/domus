@@ -4,6 +4,7 @@
 #include <Arduino.h>
 #include <HardwareSerial.h>
 #include <ArduinoJson.h>
+#include <ESP8266WebServer.h>
 
 enum data_type {
   b,
@@ -140,10 +141,8 @@ public:
     readed = false;
   }
   ~ServerCommand() {
-    Serial.print("commandDestroyer:");
     free(parNames);
     free(parValues);
-    Serial.println("OK");
   }
   int getParNumber() { return parSize; }
   String getFunName() { return funName; }
@@ -164,7 +163,9 @@ public:
     }
   }
   void printToSerial() {
+    Serial.print("deviceID: ");
     Serial.println(devId);
+    Serial.print("functionName: ");
     Serial.println(funName);
     for(int i = 0; i < parSize;i++) {
       Serial.print(parNames[i]);
@@ -193,7 +194,6 @@ String createRegistrationJson(const String &deviceId,const String &deviceName, c
 String createRecordToSend(String const &devId, StateAttribute * stateatt[], int data_count);
 
 String data_typeEnumToString(const data_type &type);
-
 
 
 #endif

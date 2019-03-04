@@ -1,0 +1,12 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div></br>
+
+<div><h2>Create Feedback Function with function {{ fun.name }} </h2></div>
+
+{% for par in params %}
+    <div>{{par.name}}</div>
+{% endfor %}
+
+{% endblock content %}  

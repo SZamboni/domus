@@ -9,7 +9,7 @@
                 <div class="article-metadata">
                     <a href="{% url 'device' cat.id dev.id %}" ><h2>Device: {{ dev.name }}</h2></a>
                     <p><small>ID: {{ dev.deviceID }}</small></br>
-                    <small>adress: {{ dev.ip_adress }} : {{ dev.port }}</small> </p>
+                    <small>adress: {{ dev.ip_adress }}:{{ dev.port }}{{ dev.path }}</small> </p>
                     <p> <small>{{ dev.description }} </small> </p>
                     <p><small>Type: {{dev.Devtype }}</small></p>
                     

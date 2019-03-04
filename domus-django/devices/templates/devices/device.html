@@ -4,7 +4,7 @@
     <div class="float-right"> <a href="{% url 'category' cat.id %}"><h3>Back</h3></a></div></br>
     
     <legend class="border-bottom mb-4">Device {{ dev.name }} </legend>
-    <small>Adress: {{ dev.ip_adress }}:{{ dev.port }}</small>
+    <small>Adress: {{ dev.ip_adress }}:{{ dev.port }}{{ dev.path }}</small>
     <p><small>Description: {{ dev.description }}</small></p>
     <div><button class="btn btn-outline-secondary"><a href="{% url 'alerts' cat.id dev.id %}">See Alerts</a> </button></div>
     

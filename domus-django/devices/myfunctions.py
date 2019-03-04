@@ -10,6 +10,7 @@ import requests
 
 
 def parseRegistrationJson(req): 
+    print()
     data = json.loads(req.body)
     #integrity checks
     if 'deviceID' not in data:
@@ -71,7 +72,7 @@ def parseRegistrationJson(req):
     if DeviceType.objects.filter(deviceType = data['deviceType']).exists():
         devType = DeviceType.objects.filter(deviceType = data['deviceType']).first()
         print("DeviceType already exists")
-        dev = Device(deviceID=data['deviceID'],Devtype=devType,name=data['deviceName'],description='',ip_adress="1",port="1")
+        dev = Device(deviceID=data['deviceID'],Devtype=devType,name=data['deviceName'],description='',ip_adress=req.META['REMOTE_ADDR'],port="1",path="/")
         dev.save()
         print("Device: ")
         print(dev)
@@ -98,7 +99,7 @@ def parseRegistrationJson(req):
 
     else :
         #create new deviceType
-        devicetypename = ''
+        devicetypename = data['deviceType']
         if 'deviceTypeName' in data:
             devicetypename = data['deviceTypeName']
 
@@ -159,7 +160,7 @@ def parseRegistrationJson(req):
                                 c.save()
                         
         #create the device
-        dev = Device(deviceID=data['deviceID'],Devtype=devType,name=data['deviceName'],description='',ip_adress="1",port="1")
+        dev = Device(deviceID=data['deviceID'],Devtype=devType,name=data['deviceName'],description='',ip_adress=req.META['REMOTE_ADDR'],port="1",path="/")
         dev.save()
         #get the user
         user = User.objects.filter(username = data['owner']).first()
@@ -265,7 +266,7 @@ def sendFunctionRequest(request,cat,dev,funct,values):
     print(json_data)
 
     try:
-        r = requests.post('http://'+str(dev.ip_adress)+':'+str(dev.port), json=responsedata,timeout=5)
+        r = requests.post('http://'+str(dev.ip_adress)+':'+str(dev.port) + str(dev.path), json=responsedata,timeout=5)
         print(r.text)
 
         if r.status_code == 200:

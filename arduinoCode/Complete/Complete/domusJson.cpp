@@ -20,34 +20,29 @@ String createRegistrationJson(const String &deviceId,const String &deviceName,co
     }
   }
   
-  
   DynamicJsonBuffer jb(capacity);
   
   JsonObject &root = jb.createObject();
 
-  Serial.print(root.set("deviceID",deviceId));
-  Serial.print(root.set("deviceName",deviceName));
-  Serial.print(root.set("deviceType",deviceType));
-  Serial.print(root.set("owner", owner));
+  root.set("deviceID",deviceId);
+  root.set("deviceName",deviceName);
+  root.set("deviceType",deviceType);
+  root.set("owner", owner);
 
   JsonArray &atts = root.createNestedArray("stateAttributes");
 
-  Serial.println("");
-  Serial.print("Size of stateatts: ");
-  Serial.println(stateattsSize);
-
   for(int i = 0; i < stateattsSize;i++) {
     JsonObject &tmp = atts.createNestedObject();
-    Serial.print(tmp.set("attributeName",stateatts[i]->getName()));
-    Serial.print(tmp.set("attributeDescription",stateatts[i]->getDescription()));
-    Serial.print(tmp.set("attributeType",data_typeEnumToString(stateatts[i]->getType())));
+    tmp.set("attributeName",stateatts[i]->getName());
+    tmp.set("attributeDescription",stateatts[i]->getDescription());
+    tmp.set("attributeType",data_typeEnumToString(stateatts[i]->getType()));
   }
 
   JsonArray &jsonfuns = root.createNestedArray("functions");
   for(int i = 0; i < funSize;i++) {
     JsonObject &tmpfun = jsonfuns.createNestedObject();
-    Serial.print(tmpfun.set("functionName",funs[i]->getFunctName()));
-    Serial.print(tmpfun.set("functionDescription",funs[i]->getFunctDesc()));
+    tmpfun.set("functionName",funs[i]->getFunctName());
+    tmpfun.set("functionDescription",funs[i]->getFunctDesc());
     FunctionParameter *pars = funs[i]->getParameters();
     int parsSize = funs[i]->getParamSize();
 
@@ -55,9 +50,9 @@ String createRegistrationJson(const String &deviceId,const String &deviceName,co
     
     for(int j = 0; j < parsSize; j++) {
       JsonObject &tmpfun = jsonpars.createNestedObject();
-      Serial.print(tmpfun.set("parameterName",pars[j].getParName()));
-      Serial.print(tmpfun.set("parameterDescription",pars[j].getParDesc()));
-      Serial.print(tmpfun.set("parameterType",data_typeEnumToString(pars[j].getParType() ) ) );
+      tmpfun.set("parameterName",pars[j].getParName());
+      tmpfun.set("parameterDescription",pars[j].getParDesc());
+      tmpfun.set("parameterType",data_typeEnumToString(pars[j].getParType() ) );
       ParameterOption *opts = pars[j].getOptions();
       int optsSize = pars[j].getOptionsSize();
 
@@ -65,8 +60,8 @@ String createRegistrationJson(const String &deviceId,const String &deviceName,co
 
       for(int k = 0; k < optsSize; k++) {
         JsonObject &tmpopt = jsonopts.createNestedObject();
-        Serial.print(tmpopt.set("option",opts[k].getOption()));
-        Serial.print(tmpopt.set("description",opts[k].getOptionDesc()));
+        tmpopt.set("option",opts[k].getOption());
+        tmpopt.set("description",opts[k].getOptionDesc());
       }
     }
   }
@@ -74,8 +69,7 @@ String createRegistrationJson(const String &deviceId,const String &deviceName,co
   String to_return = ""; 
   root.prettyPrintTo(to_return);
   
-  Serial.println("");
-  Serial.println(to_return);
+  //Serial.println(to_return);
   
   return to_return;
   
@@ -88,21 +82,21 @@ String createRecordToSend(String const &devId, StateAttribute * stateatt[], int 
   
   JsonObject &root = jb.createObject();
 
-  Serial.print(root.set("deviceID",devId));
+  root.set("deviceID",devId);
 
   JsonArray &atts = root.createNestedArray("stateAttributes");
 
   for(int i = 0; i < data_count; i++) {
     JsonObject &tmp = atts.createNestedObject();
-    Serial.print(tmp.set("attributeName",stateatt[i]->getName()));
-    Serial.print(tmp.set("value",stateatt[i]->getValue()));
+    tmp.set("attributeName",stateatt[i]->getName());
+    tmp.set("value",stateatt[i]->getValue());
   }
 
   String to_return = ""; 
   root.prettyPrintTo(to_return);
   
-  Serial.println("");
-  Serial.println(to_return);
+  
+  //Serial.println(to_return);
   
   return to_return;
   

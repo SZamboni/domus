@@ -1,7 +1,8 @@
 {% extends "devices/paginable.html" %}
 
 {% block content %}
-<div class="float-md-right"> <a href="{% url 'device' catid devid %}"><h3>Back</h3></a></div>
+<div class="float-md-right"> <a href="{% url 'device' catid dev.id %}"><h3>Back</h3></a></div>
+<h3>Alerts on device {{dev.name}} </h3>
     {% for item in alert_list %}
 
         <article class="media content-section">
@@ -14,10 +15,13 @@
                 </div>
             </div>
             <div>
-                <button class="btn btn-outline-secondary" ><a href="{% url 'updatealert' catid devid item.id %}">Update</a></button>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'updatealert' catid dev.id item.id %}">Update</a></button>
             </div>
             <div>
-                <button class="btn btn-outline-danger" ><a href="{% url 'deletealert' catid devid item.id %}">Delete</a></button>
+                <button class="btn btn-outline-danger" ><a href="{% url 'deletealert' catid dev.id item.id %}">Delete</a></button>
+            </div>
+            <div>
+                <button class="btn btn-outline-secondary" ><a href="{% url 'selectfeedbackfunction' catid dev.id item.id %}">Create feedback function</a></button>
             </div>
         </article>
 

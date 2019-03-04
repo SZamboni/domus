@@ -16,9 +16,9 @@ const String devId = "ds2e7";
 const String devName = "newdev1";
 const String devType = "useless";
 const String owner = "admin";
-const char * wifi_ssid = "FASTWEB-1-1FAA45";
-const char * wifi_pwd = "77861704BB";
-const String server_url = "http://192.168.1.69:3000/";
+const char * wifi_ssid = "CASA_ASUS";  // "FASTWEB-1-1FAA45"
+const char * wifi_pwd = "casamiamia"; // "77861704BB"
+const String server_url = "http://192.168.1.106:3000/"; // "http://192.168.1.69:3000/"
 
 ServerCommand last_command;
 
@@ -33,36 +33,30 @@ Funct *funs[2];
 Funct f1 = Funct("funct1","f1desc",pars1,2);
 Funct f2 = Funct("funct2","f2desc",pars2,2);
 
-void handlePOST() {
-  if (server.hasArg("plain")== true && server.method() == HTTP_POST){ //Check if body received
+void handleServerCommand() {
+  if (server.hasArg("plain")== true){ //Check if body received
     String body = server.arg("plain");
     int capacity = JSON_OBJECT_SIZE(2) + JSON_ARRAY_SIZE(10) + 10*JSON_OBJECT_SIZE(2);
     DynamicJsonBuffer jb(capacity);
     JsonObject& root = jb.parseObject(body);
 
     if(root.success()) {
-      Serial.println("JSON serialization suceeded");
       String devId = root["deviceID"];
       String functName = root["function"];
       if( devId == "" || functName == "") {
-        Serial.println("No deviceID or function");
-        server.send(400,"text/plain","No deviceID or function");
+        Serial.println("No deviceID or function received");
+        server.send(400,"text/plain","No deviceID or function received");
         return;
       }
-      Serial.print("deviceID: ");
-      Serial.println(devId);
-      Serial.print("function desired: ");
-      Serial.println(functName);
       String pars = root["parameters"];
 
       if(pars == "") {
-        Serial.println("No parameters");
-        server.send(400,"text/plain","No parameters");
+        Serial.println("No parameters received");
+        server.send(400,"text/plain","No parameters received");
       }
 
       JsonArray& arr = jb.parseArray(pars);
-      Serial.print("Arr size: ");
-      Serial.println(int(arr.size()));
+      
       String *names =  (String *) calloc(int(arr.size()),sizeof(String));
       String *vals =  (String *) calloc(int(arr.size()),sizeof(String));
       
@@ -70,12 +64,11 @@ void handlePOST() {
         String pname = arr[i]["paramName"];
         String pvalue = arr[i]["paramValue"];
         if(pname == "" || pvalue == "") {
-          Serial.println("Wrong paramName or paramValue");
-          server.send(400,"text/plain","Wrong paramName or paramValue");
+          Serial.println("Wrong paramName or paramValue received");
+          server.send(400,"text/plain","Wrong paramName or paramValue received");
         }
         names[i]=pname;
         vals[i]=pvalue;
-        Serial.print(pname); Serial.print(" "); Serial.println(pvalue);
       }
 
       last_command.setfunName(functName);
@@ -90,14 +83,12 @@ void handlePOST() {
       Serial.println("JSON serialization failed");
       server.send(400,"text/plain","Wrong JSON format");
     }
-
     
   } else {
     Serial.println("Wrong method or no body");
     server.send(400,"text/plain","Wrong method or no body");
   }
 }
-
 
 void handleNotFound() {
   server.send(404,"text/plain","Not Found");
@@ -131,13 +122,18 @@ void setup() {
   if (MDNS.begin("esp8266")) {
     Serial.println("MDNS responder started");
   }
-  server.on("/", handlePOST);
+  server.on("/",HTTP_POST,handleServerCommand);
   server.onNotFound(handleNotFound);
   server.begin();
   
   String registration = createRegistrationJson(devId,devName,devType,owner,atts,2,funs,2);
+
+  Serial.print("registration JSON: ");
+  Serial.println(registration);
   
-  sendJSONToServer(WiFiMulti,server_url,registration);
+  if(!sendJSONToServer(WiFiMulti,server_url,registration,false)){
+    Serial.println("Error while sending occurred!");
+  }
 
   delay(3000);
 }
@@ -149,8 +145,12 @@ void loop() {
     att2.setValue("bb");
     
     String record = createRecordToSend(devId,atts,2);
+    Serial.print("record to send: ");
+    Serial.println(record);
   
-    sendJSONToServer(WiFiMulti,server_url,record);
+    if(!sendJSONToServer(WiFiMulti,server_url,record,false) ) {
+      Serial.println("Error while sending occurred!");
+    }
 
     sendTimer = millis();
   }
@@ -159,7 +159,7 @@ void loop() {
   MDNS.update();
 
   if(!(last_command.isAlreadyReaded())) {
-    Serial.print("New Command!!");
+    Serial.println("New Command:");
     last_command.markAsRead();
     last_command.printToSerial();
   }

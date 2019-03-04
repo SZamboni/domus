@@ -1,8 +1,13 @@
 TODO:
--alert create view
--alert update view
--alert delete view
--alert list view for device
--actually make alert working
+-create a lot of data
+-from alert to automatic response
 
--get port of the device (impossible???)
+
+Known bugs:
+-quando guardi le notifiche le segna tutte come lette e questo crea due problemi:
+    -segna lette anche le notifiche nelle pagine successive che non hai visto
+    -se vai subito su notifiche già lette ti compaiono quelle che hai appena letto per prime
+
+-impossibile ottenere porta e path del device che invia i dati
+
+-la paginazione sulle nuove notifiche non funziona, perchè??

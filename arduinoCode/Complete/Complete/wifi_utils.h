@@ -14,10 +14,10 @@ const int WIFI_CONNECTION_TRIALS = 30;
 
 bool startWiFi(ESP8266WiFiMulti &WiFiMulti,const char * ssid, const char * pwd);
 
-bool sendStringToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const String &s);
+bool sendStringToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const String &s, bool verb = true);
 
-bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const JsonObject &jsonobj);
+bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const JsonObject &jsonobj, bool verb = true);
 
-bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const String &s);
+bool sendJSONToServer(ESP8266WiFiMulti &WiFiMulti,const String &server_url,const String &s, bool verb = true);
 
 #endif
