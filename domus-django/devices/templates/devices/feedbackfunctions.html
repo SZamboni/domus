@@ -1,0 +1,28 @@
+{% extends "devices/paginable.html" %}
+
+{% block content %}
+<div class="float-md-right"> <a href="{% url 'device' catid dev.id %}"><h3>Back</h3></a></div>
+<h3>Feedbackfunctions on device {{dev.name}} </h3>
+    {% for fun in functions %}
+
+        <article class="media content-section">
+            <div class="media-body">
+                <div class="article-metadata">
+                   <p>{{ fun.description }}</p>
+                   <p>Function: {{ fun.function.name }}</p>
+                   <p>Alert: {{ fun.alert.attribute }} {{ fun.alert.alert_condition }} {{ fun.alert.value }}</p>
+                   <div><ul>
+                        {% for par in fun.feedbackparameters %}
+                            <li>{{ par.parameter.name }} = {{ par.value }}</li>
+                        {% endfor %}
+                    </ul></div>
+                </div>
+            </div>
+            <div>
+                <button class="btn btn-outline-danger" ><a href="{% url 'deletefeedbackfunction' catid dev.id fun.id %}">Delete</a></button>
+            </div>
+        </article>
+
+    {% endfor %}
+
+{% endblock content %}    

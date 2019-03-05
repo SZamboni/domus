@@ -7,6 +7,7 @@
     <small>Adress: {{ dev.ip_adress }}:{{ dev.port }}{{ dev.path }}</small>
     <p><small>Description: {{ dev.description }}</small></p>
     <div><button class="btn btn-outline-secondary"><a href="{% url 'alerts' cat.id dev.id %}">See Alerts</a> </button></div>
+    <div><button class="btn btn-outline-secondary"><a href="{% url 'feedbackfunctions' cat.id dev.id %}">See Feedbackfunctions</a> </button></div>
     
     {% for att in stateatt %}
 

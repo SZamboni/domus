@@ -233,7 +233,7 @@ def parseStateData(req):
     
     return HttpResponse("OK")
 
-def sendFunctionRequest(request,cat,dev,funct,values):
+def sendFunctionRequest(dev,funct,values):
     print("sending to")
     print(dev)
     print("the function")

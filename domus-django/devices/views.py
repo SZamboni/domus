@@ -9,6 +9,7 @@ from django.http import Http404
 from django.views.decorators.csrf import csrf_exempt
 import json
 from .myfunctions import parseRegistrationJson, parseStateData, sendFunctionRequest
+from .insert_data import *
 
 
 def about(request):
@@ -264,7 +265,7 @@ class FunctionsView(LoginRequiredMixin,UserPassesTestMixin,TemplateView):
         print(values)
         # send values to a function that performs a http request to the device in order to send the data
 
-        sending_ok = sendFunctionRequest(request,cat,dev,fun,values)
+        sending_ok = sendFunctionRequest(dev,fun,values)
 
         if sending_ok:
             messages.add_message(request,messages.SUCCESS,'Command sended successfully to the device')
@@ -551,6 +552,71 @@ class CreateFeedbackFunctionView(LoginRequiredMixin,UserPassesTestMixin,Template
 
         messages.add_message(request,messages.SUCCESS,'Feedback function created successfully!')
         return redirect('alerts',catpk=cat.id,devpk=dev.id)
+
+class FeedbackFunctionsListView(LoginRequiredMixin,UserPassesTestMixin,ListView):
+    template_name = 'devices/feedbackfunctions.html'
+    paginate_by = 2
+    context_object_name = 'functions'
+    model = FeedbackFunction
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            return True
+        return False
+
+    def get_queryset(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        user = self.request.user
+        alerts = Alert.objects.filter(device = dev, user = user)
+        
+        functs = []
+
+        for al in alerts:
+            al_func = FeedbackFunction.objects.filter(alert = al)
+            functs.extend(al_func)
+
+        for fun in functs:
+            pars = FeedbackParameter.objects.select_related().filter(feedbackfunction = fun)
+            fun.feedbackparameters = pars
+        
+        return functs
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        context['catid']=self.kwargs.get('catpk')
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        context['dev']=dev
+        return context
+
+class FeedbackFunctionDeleteView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMixin,DeleteView):
+    model = FeedbackFunction
+    success_url = '/userDevices/'
+    success_message = 'Feedback function successfully deleted'
+
+    def test_func(self):
+        dev = get_object_or_404(Device, id=self.kwargs.get('devpk'))
+        cat = get_object_or_404(Category, id=self.kwargs.get('catpk'), devices=dev)
+        if self.request.user == cat.owner:
+            fun = get_object_or_404(FeedbackFunction, id= self.kwargs.get('pk'))
+
+            if(fun.alert.device == dev and fun.alert.user == self.request.user):
+                return True
+            else :
+                return True
+        return False
+
+class TestView(TemplateView):
+    template_name = 'devices/test.html'
+
+    def get_context_data(self, **kwargs):
+        context = super().get_context_data(**kwargs)
+        
+        create_data()
+
+        return context
+
 
 @csrf_exempt
 def registerDevice(request):

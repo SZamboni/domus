@@ -1,12 +1,14 @@
 TODO:
--create a lot of data
--feedbackfunctions actual implementation
+-create even more data
+-better README
 
 ADVANCED: 
 -all https
+-history of functions sended
 
 SUPER ADVANCEND
 -data visualization with infografics
+-an actual good UI
 
 Known bugs:
 -quando guardi le notifiche le segna tutte come lette e questo crea due problemi:

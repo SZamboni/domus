@@ -24,11 +24,15 @@ urlpatterns = [
 
     path('category/<int:catpk>/device/<int:devpk>/alert/<int:alpk>/selectfeedbackfunction/',FeedbackFunctionChoiceView.as_view(),name='selectfeedbackfunction'),
     path('category/<int:catpk>/device/<int:devpk>/alert/<int:alpk>/createfeedbackfunction/<int:pk>/',CreateFeedbackFunctionView.as_view(), name='newfeedbackfunction'),
+    path('category/<int:catpk>/device/<int:devpk>/feedbackfunctions/',FeedbackFunctionsListView.as_view(),name='feedbackfunctions'),
+    path('category/<int:catpk>/device/<int:devpk>/feedbackfunction/<int:pk>/delete',FeedbackFunctionDeleteView.as_view(),name='deletefeedbackfunction'),
 
     path('notifications/',NotificationsListView.as_view(),name='notifications'),
     path('old-notifications/',OldNotificationsListView.as_view(),name='old-notifications'),
 
     path('category/<int:catpk>/device/<int:devpk>/function/<int:funpk>', FunctionsView.as_view(), name="function"),
     path('registerdevice/', views.registerDevice,name='registerdevice'),
-    path('poststatedata/',views.postStateData,name='poststatedata')
+    path('poststatedata/',views.postStateData,name='poststatedata'),
+
+    path('test/',views.TestView.as_view(),name='test')
 ] 

@@ -1,0 +1,88 @@
+from .models import *
+
+def create_data():
+    u1 = User.objects.create_user(username='user1', email='simone.zamboni996@gmail.com',password='test123123')
+    u1.save()
+    u2 = User.objects.create_user(username='user2', email='simone.zamboni996@gmail.com',password='test123123')
+    u2.save()
+    u3 = User.objects.create_user(username='user3', email='simone.zamboni996@gmail.com',password='test123123')
+    u3.save()
+
+    c1_1 = Category(description = 'cat1desc', name = 'cat1',owner = u1)
+    c1_1.save()
+    c1_2 = Category(description = 'cat2desc', name = 'cat2',owner = u1)
+    c1_2.save()
+    c1_3 = Category(description = 'cat3desc', name = 'cat3',owner = u1)
+    c1_3.save()
+
+    c2_1 = Category(description = 'cat1desc', name = 'cat1',owner = u2)
+    c2_1.save()
+    c2_2 = Category(description = 'cat2desc', name = 'cat2',owner = u2)
+    c2_2.save()
+    c2_3 = Category(description = 'cat3desc', name = 'cat3',owner = u2)
+    c2_3.save()
+
+    c3_1 = Category(description = 'cat1desc', name = 'cat1',owner = u3)
+    c3_1.save()
+    c3_2 = Category(description = 'cat2desc', name = 'cat2',owner = u3)
+    c3_2.save()
+    c3_3 = Category(description = 'cat3desc', name = 'cat3',owner = u3)
+    c3_3.save()
+
+    devType_1 = DeviceType(deviceType='devtype1', name='devtype1',manufacturer = ' ', description = 'devtype1desc')
+    devType_1.save()
+
+    f1_1 = Function(name='f1',description='f1desc',devType = devType_1)
+    f1_1.save()
+
+    fpar1_1_1 = FunctionParameter(name='par1',description='par1desc',funct = f1_1,data_type=STRING)
+    fpar1_1_1.save()
+    fparopt_1_1_1_1 = FunctionParameterOption(parameter = fpar1_1_1,option="Opt1",description="opt1desc")
+    fparopt_1_1_1_1.save()
+    fparopt_1_1_1_2 = FunctionParameterOption(parameter = fpar1_1_1,option="Opt3",description="opt2desc")
+    fparopt_1_1_1_2.save()
+    fparopt_1_1_1_3 = FunctionParameterOption(parameter = fpar1_1_1,option="Opt3",description="opt3desc")
+    fparopt_1_1_1_3.save()
+    fpar1_1_2 = FunctionParameter(name='par2',description='par2desc',funct=f1_1,data_type=BOOL)
+    fpar1_1_2.save()
+
+    f1_2 = Function(name='f2',description='f2desc',devType = devType_1)
+    f1_2.save()
+    fpar1_2_1 = FunctionParameter(name='par1',description='par2desc',funct = f1_2,data_type = FLOAT)
+    fpar1_2_1.save()
+    fparconst_1_2_1_1 = FunctionParameterConstraint(parameter = fpar1_2_1,value = '50',constraintType=CONSTRAINT_MAX)
+    fparconst_1_2_1_1.save()
+    fparconst_1_2_1_2 = FunctionParameterConstraint(parameter = fpar1_2_1,value = '10',constraintType=CONSTRAINT_MIN)
+    fparconst_1_2_1_2.save()
+
+    statt1_1 = StateAttribute(name='att1',description='att1desc',devType=devType_1,data_type=FLOAT)
+    statt1_1.save()
+    statt1_2 = StateAttribute(name='att2',description='att2desc',devType=devType_1,data_type=STRING)
+    statt1_2.save()
+    statt1_3 = StateAttribute(name='att3',description='att3desc',devType=devType_1,data_type=BOOL)
+    statt1_3.save()
+
+    dev1_1 = Device(deviceID='devID1_1',name='dev1_1',description = 'dev1_1 desc', Devtype = devType_1,ip_adress='127.0.0.1',port='3000',path='/')
+    dev1_1.save()
+    c1_1.devices.add(dev1_1)
+    c1_1.save()
+    c1_2.devices.add(dev1_1)
+    c1_2.save()
+
+    dev1_2 = Device(deviceID='devID1_2',name='dev1_2',description = 'dev1_2 desc', Devtype = devType_1,ip_adress='127.0.0.1',port='3000',path='/')
+    dev1_2.save()
+    c2_2.devices.add(dev1_2)
+    c2_2.save()
+    c3_1.devices.add(dev1_2)
+    c3_1.save()
+
+    al1_1_1 = Alert(device = dev1_1,user = u1,attribute=statt1_1,description='al1desc',alert_condition=CONDITION_SMALLER,value='20',alert_level = ALERT_LEVEL_MID)
+    al1_1_1.save()
+    al1_1_2 = Alert(device = dev1_1,user = u1,attribute=statt1_2,description='al1desc',alert_condition=CONDITION_EQUAL,value='AA',alert_level = ALERT_LEVEL_MID)
+    al1_1_2.save()
+
+    fb1_1_1_1 = FeedbackFunction(alert = al1_1_1,description='feedbackfun1',function=f1_2)
+    fb1_1_1_1.save()
+    fbpar1_1_1_1_1= FeedbackParameter(parameter = fpar1_2_1,value='25',feedbackfunction = fb1_1_1_1)
+    fbpar1_1_1_1_1.save()
+

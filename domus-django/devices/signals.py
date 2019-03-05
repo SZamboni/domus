@@ -1,6 +1,7 @@
 from .models import *
 from django.db.models.signals import post_save
 from django.dispatch import receiver
+from .myfunctions import sendFunctionRequest
 
 @receiver(post_save, sender=User)
 def create_user_profile(sender, instance, created, **kwargs):
@@ -63,10 +64,23 @@ def test_signal(sender, instance, **kwargs):
                     alertActivated(al,instance,user)   
 
 def alertActivated(al,rec,user):
+    print('Alert activated')
     n = Notification(alert = al, record = rec, date = timezone.now(), readed = False)
     n.save()
     user.userprofile.unreaded_notifications += 1
     user.userprofile.save()          
-    print("funct ok")      
+
+    dev = al.device
+    
+    functs = FeedbackFunction.objects.filter(alert = al)
+
+    for fun in functs:
+        print('triggered function')
+        pars = FeedbackParameter.objects.filter(feedbackfunction = fun)
+        values = {}
+        for par in pars:
+            values[par.parameter.name] = par.value
+
+        sendFunctionRequest(dev,fun.function,values)
 
 
