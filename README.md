@@ -31,11 +31,16 @@ On this page you can create a FeedbackFunction for that alert.
 
 Let's go more on a technical side, how a device can register themselve to the server?
 With a POST request at the path /registerdevice/ with a JSON with a structure like:
+
 ![alt text](https://github.com/SZamboni/domus/blob/master/images/registrationJSON.png)
+
 For this to work the device need to have three pieces of informations: the exact name of the owner, the username of the person that will control the device, the deviceID, unique between all the other devices registered in the server, and its deviceType, o when two devices of the same type register will have the same functionalities. Moreover the device need to know the server ip and port, so it can know where to send the request.
 When the device has to send data to the server it will do it using a JSON like this:
+
 ![alt text](https://github.com/SZamboni/domus/blob/master/images/dataJSON.png)
+
 And when the server will send commends to the device, like functions of FeedbackFunctions, it will do it using a JSON like this:
+
 ![alt text](https://github.com/SZamboni/domus/blob/master/images/commandJSON.png)
 
 To test if this can work some code for Arduino (using the board Wemos D1 R2 for easier Wi-Fi access) has been developed. The code represent a dummy device that register itself on the server, that sends dummy data and that prints the command when it receives one.
