@@ -1,7 +1,0 @@
--postDataJson:
-	
-	-deviceID
-	-stateAttributes:[
-		-attributeName
-		-value
-	]
