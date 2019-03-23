@@ -48,7 +48,7 @@
         
         <main role="main" class="container">
         <div class="row">
-            <div class="col-md-8">
+            <div class="col-md-12">
             {% if messages %}
                 {% for message in messages %}
                     {% if message.tags != 'error' %}
@@ -66,6 +66,7 @@
 
             {% block pagination %} {% endblock %}
             </div>
+            <!-- also modify col-md-12 into col-mid-8
             <div class="col-md-4">
             <div class="content-section">
                 <h3>Our Sidebar</h3>
@@ -78,7 +79,7 @@
                 </ul>
                 </p>
             </div>
-            </div>
+            </div> -->
         </div>
         </main>        
 

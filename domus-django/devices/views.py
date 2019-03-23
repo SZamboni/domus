@@ -149,6 +149,9 @@ class ChangeCategoryView(SuccessMessageMixin,LoginRequiredMixin,UserPassesTestMi
         cat.save()
 
         return redirect('category',pk=cat.id)
+    
+    def get_queryset(self):
+       return Category.objects.filter(owner = self.request.user).order_by('name')
 
 
 class DeviceView(LoginRequiredMixin,UserPassesTestMixin,ListView):
