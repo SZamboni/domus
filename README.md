@@ -1,8 +1,7 @@
 # Domus Project
-Project Domus is an attempt to create a generalize IOT devices server manager created by Simone Zamboni in the fist months of 2019.
-It is called Domus from the latin home, because in domotics project normally you have a lot of different devices that you have to control in a centralize way.
-The idea is simple: the server starts with no knowledge of the devices that will have to control and their functionalities, therefore the devices send a registration message to the server where they explain their functionalities, so that the server register the devices and it starts communicating with them, reading their state and sending to them commands.
-The main component of this project is the server web developed using Django, and also some Arudino code hase been developed to check the viability of this implementation.
+Project Domus is an attempt to create a generalize IoT devices server manager created by Simone Zamboni in the fist months of 2019.
+It is called Domus from the latin of "home". Domotics project usually have a lot of different devices to control in a centralize way, so idea is simple: the server starts with no knowledge of the devices that will have to control and their functionalities. Then the devices send a registration message to the server where they explain their functionalities, so that the server register the devices and it starts communicating with them, reading their state and sending to them commands.
+The main component of this project is the web server developed using Django, and also some Arudino code hase been developed to check the viability of this implementation.
 
 # Front-end
 
